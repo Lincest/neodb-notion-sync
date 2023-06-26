@@ -86,15 +86,16 @@ const fetchCompletedAndSync = async (type = 'movie', update = false) => {
                 } catch (error) {
                     console.log(`sync ${item.title} failed!`);
                 }
-            }
-            if (update === true && itemMap.has(item.title)) {
-                console.log(`updating: ${item.title}, body = `, body);
-                try {
-                    const pageId = await updateEntryToDatabase(itemMap.get(item.title), body);
-                    console.log("update completed: ", pageId);
-                    itemMap.set(item.title, pageId);
-                } catch (error) {
-                    console.log(`update ${item.title} failed!`);
+            } else {
+                if (update === true && itemMap.has(item.title)) {
+                    console.log(`updating: ${item.title}, body = `, body);
+                    try {
+                        const pageId = await updateEntryToDatabase(itemMap.get(item.title), body);
+                        console.log("update completed: ", pageId);
+                        itemMap.set(item.title, pageId);
+                    } catch (error) {
+                        console.log(`update ${item.title} failed!`);
+                    }
                 }
             }
         }
