@@ -24,7 +24,7 @@ export const getDatabase = async () => {
 
 // 生成 neodb page
 export const generateBody = (neodbItem) => {
-    const { name, type, status, score, comment, link, completed, tags } = neodbItem;
+    const { name, type, status, score, comment, link, completed, tags, cover } = neodbItem;
     return {
         parent: {
             database_id: databaseId,
@@ -72,6 +72,12 @@ export const generateBody = (neodbItem) => {
             Tags: {
                 multi_select: tags.map(x => ({ name: x })),
             }
+        },
+        cover: {
+            type: 'external',
+            external: {
+                url: cover ? cover : ''
+            }
         }
     };
 }
@@ -90,4 +96,3 @@ export const updateEntryToDatabase = async (pageId, item) => {
     const response = await notion.pages.update(body);
     return response?.id;
 }
-

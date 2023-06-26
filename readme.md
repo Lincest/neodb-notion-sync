@@ -4,6 +4,8 @@
 
 ![](https://youpai.roccoshi.top/img/202306261550602.png)
 
+![](https://youpai.roccoshi.top/img/202306261626051.png)
+
 ## 1 - create notion database: 
 
 ![](https://youpai.roccoshi.top/img/202306261508300.png)

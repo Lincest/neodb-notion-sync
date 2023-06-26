@@ -76,6 +76,7 @@ const fetchCompletedAndSync = async (type = 'movie', update = false) => {
                 link: "https://neodb.social" + item.url,
                 completed: dataItem.created_time.split("T")[0],
                 tags: dataItem.tags,
+                cover: item.cover_image_url
             };
             if (!itemMap.has(item.title)) {
                 // console.log(`syncing: ${item.title}, body = `, body);
