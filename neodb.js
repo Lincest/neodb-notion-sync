@@ -75,6 +75,7 @@ const fetchCompletedAndSync = async (type = 'movie', update = false) => {
                 comment: dataItem.comment_text ? dataItem.comment_text : '',
                 link: "https://neodb.social" + item.url,
                 completed: dataItem.created_time.split("T")[0],
+                tags: dataItem.tags,
             };
             if (!itemMap.has(item.title)) {
                 console.log(`syncing: ${item.title}, body = `, body);

@@ -7,6 +7,7 @@ await fetchCompletedTvAndSync();
 await fetchCompletedBookAndSync();
 
 // update all  (if you change ratings, comments or sth)
+
 // await fetchCompletedMusicAndSync(true);
 // await fetchCompletedMovieAndSync(true);
 // await fetchCompletedTvAndSync(true);
