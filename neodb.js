@@ -27,22 +27,21 @@ export const fetchUserInfo = () => {
         });
 }
 
-export const fetchCompletedFilmsAndSync = async (update = false) => {
+const fetchCompletedAndSync = async (type = 'movie', update = false) => {
     const options = {
         method: 'GET',
         url: 'https://neodb.social/api/me/shelf/complete',
         headers,
         params: {
-            category: 'movie',
+            category: type,
             page: 1,
         }
     }
-    const completedFilms = [];
     const pre = await axios.request(options);
     const pages = pre.data.pages;
     // request all pages and sync them to notion
-    const movieSet = getNamespaceByType('movie');
-    console.log(`count = ${movieSet.size}, movieSet: `, movieSet);
+    const itemMap = getNamespaceByType(type);
+    console.log(`count = ${itemMap.size}, itemMap: `, itemMap);
     for (let i = 1; i <= pages; i++) {
         const op = { ...options };
         op.params.page = i;
@@ -51,60 +50,84 @@ export const fetchCompletedFilmsAndSync = async (update = false) => {
         console.log(`syncing ${data.length} items...`);
         for (const dataItem of data) {
             const item = dataItem.item;
-            if (!movieSet.has(item.title)) {
-                const body = {
-                    name: item.title,
-                    type: 'Film',
-                    status: 'Done', // Not started, In progress, Done
-                    score: dataItem.rating_grade ? dataItem.rating_grade : 0,
-                    comment: dataItem.comment_text ? dataItem.comment_text : '',
-                    link: "https://neodb.social" + item.url,
-                    completed: dataItem.created_time.split("T")[0],
-                };
+            let pageType = ''; // Book, Article, TV Series, Film, Podcast, Music
+            switch (type) {
+                case 'book':
+                    pageType = 'Book';
+                    break;
+                case 'movie':
+                    pageType = 'Film';
+                    break;
+                case 'tv':
+                    pageType = 'TV Series';
+                    break;
+                case 'music':
+                    pageType = 'Music';
+                    break;
+                default:
+                    break;
+            }
+            const body = {
+                name: item.title,
+                type: pageType,
+                status: 'Done', // Not started, In progress, Done
+                score: dataItem.rating_grade ? dataItem.rating_grade : 0,
+                comment: dataItem.comment_text ? dataItem.comment_text : '',
+                link: "https://neodb.social" + item.url,
+                completed: dataItem.created_time.split("T")[0],
+            };
+            if (!itemMap.has(item.title)) {
                 console.log(`syncing: ${item.title}, body = `, body);
                 try {
                     const pageId = await newEntryToDatabase(body);
                     console.log("sync completed: ", pageId);
-                    movieSet.set(item.title, pageId);
-                    completedFilms.push(body);
+                    itemMap.set(item.title, pageId);
                 } catch (error) {
                     console.log(`sync ${item.title} failed!`);
                 }
             }
-            if (update === true && movieSet.has(item.title)) {
-                const body = {
-                    name: item.title,
-                    type: 'Film',
-                    status: 'Done', // Not started, In progress, Done
-                    score: dataItem.rating_grade ? dataItem.rating_grade : 0,
-                    comment: dataItem.comment_text ? dataItem.comment_text : '',
-                    link: "https://neodb.social" + item.url,
-                    completed: dataItem.created_time.split("T")[0],
-                };
+            if (update === true && itemMap.has(item.title)) {
                 console.log(`updating: ${item.title}, body = `, body);
                 try {
-                    const pageId = await updateEntryToDatabase(movieSet.get(item.title), body);
+                    const pageId = await updateEntryToDatabase(itemMap.get(item.title), body);
                     console.log("update completed: ", pageId);
-                    movieSet.set(item.title, pageId);
-                    completedFilms.push(body);
+                    itemMap.set(item.title, pageId);
                 } catch (error) {
                     console.log(`update ${item.title} failed!`);
                 }
             }
         }
     }
-    console.log("movieSet = ", movieSet);
-    // writeback movieSet
-    writeNamespaceByType('movie', movieSet);
-    console.log("sync movie completed");
+    console.log("itemMap = ", itemMap);
+    // writeback itemMap
+    writeNamespaceByType(type, itemMap);
+    console.log(`sync ${type} completed`);
 }
 
+export const fetchCompletedMovieAndSync = async (update = false) => {
+    await fetchCompletedAndSync('movie', update);
+}
+
+export const fetchCompletedTvAndSync = async (update = false) => {
+    await fetchCompletedAndSync('tv', update);
+}
+
+export const fetchCompletedMusicAndSync = async (update = false) => {
+    await fetchCompletedAndSync('music', update);
+}
+
+export const fetchCompletedBookAndSync = async (update = false) => {
+    await fetchCompletedAndSync('book', update);
+}
 
 // map: 名称:pageId
 export const getNamespaceByType = (type) => {
     // check type should be book, tv, music, game, podcast, movie
     if (!(type === 'book' || type === 'tv' || type === 'music' || type === 'game' || type === 'podcast' || type === 'movie')) {
         console.error("Type should be book, tv, music, game, podcast, movie");
+    }
+    if (!fs.existsSync(`./data/${type}.csv`)) {
+        return new Map();
     }
     const csvData = fs.readFileSync(`./data/${type}.csv`, 'utf8');
     const rows = csvData.split('\n');
@@ -119,7 +142,7 @@ export const getNamespaceByType = (type) => {
     return dataSet;
 }
 
-// write to csv file
+// write to csv file: 名称:pageId
 export const writeNamespaceByType = (type, dataSet) => {
     // check type should be book, tv, music, game, podcast, movie
     if (!(type === 'book' || type === 'tv' || type === 'music' || type === 'game' || type === 'podcast' || type === 'movie')) {
@@ -134,4 +157,5 @@ export const writeNamespaceByType = (type, dataSet) => {
     console.log(`Data written to ${type}.csv`);
 }
 
-fetchCompletedFilmsAndSync();
+// TODO sync wishlist and progress (but I don't think it needs to be done cause those are not important and don't have comments and ratings)
+

@@ -41,7 +41,7 @@ export const generateBody = (neodbItem) => {
             },
             Type: {
                 select: {
-                    name: type, // Book, Article, TV Series, Film, Podcast
+                    name: type, // Book, Article, TV Series, Film, Podcast, Music
                 },
             },
             Status: {
