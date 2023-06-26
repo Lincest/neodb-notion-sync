@@ -78,7 +78,8 @@ const fetchCompletedAndSync = async (type = 'movie', update = false) => {
                 tags: dataItem.tags,
             };
             if (!itemMap.has(item.title)) {
-                console.log(`syncing: ${item.title}, body = `, body);
+                // console.log(`syncing: ${item.title}, body = `, body);
+                console.log(`syncing: ${item.title}`);
                 try {
                     const pageId = await newEntryToDatabase(body);
                     console.log("sync completed: ", pageId);
@@ -88,7 +89,7 @@ const fetchCompletedAndSync = async (type = 'movie', update = false) => {
                 }
             } else {
                 if (update === true && itemMap.has(item.title)) {
-                    console.log(`updating: ${item.title}, body = `, body);
+                    console.log(`updating: ${item.title}`);
                     try {
                         const pageId = await updateEntryToDatabase(itemMap.get(item.title), body);
                         console.log("update completed: ", pageId);
