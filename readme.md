@@ -1,5 +1,9 @@
 # sync neodb to notion
 
+[my notion page](https://moreality.notion.site/1421d177c6ed4513ab692fd223863a7e?v=24dfebddf9ee4db388aee16bed85695d&pvs=25)  |  [neodb page](https://neodb.social/users/moreality@mastodon.social/)
+
+![](https://youpai.roccoshi.top/img/202306261550602.png)
+
 ## 1 - create notion database: 
 
 ![](https://youpai.roccoshi.top/img/202306261508300.png)
